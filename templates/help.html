@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="help-content">
+        <h2>How This Student Risk Predictor Works</h2>
+
+        <!-- 1. Overview -->
+        <h5>1. Overview</h5>
+        <p>
+            This application predicts whether a student is likely to be
+            <strong>academically at risk</strong> using a machine learning model trained on the
+            <strong>UCI Student Performance dataset</strong> (student-mat.csv).
+            It uses a combination of grades, attendance, study time, parental education, and support indicators
+            to estimate the probability that a student might struggle academically.
+        </p>
+        <p style="color: var(--gray); font-size: 0.95rem;">
+            The goal is to support <strong>early intervention and mentoring</strong>, not to label or penalise students.
+            The system is meant to be a <strong>decision-support tool</strong> for teachers, counsellors, and
+            administrators.
+        </p>
+
+        <!-- 2. Data & Target Definition -->
+        <h5>2. Data & Target Definition</h5>
+        <p>
+            The original dataset contains information about students from secondary education,
+            with 33 attributes. The original target variable in the dataset is
+            <code>G3</code>, the final grade (0–20). In this project, we convert this into a
+            <strong>binary risk label</strong>:
+        </p>
+        <ul>
+            <li><code>G3</code> = final grade (0–20).</li>
+            <li>
+                <strong>Target (risk label):</strong><br>
+                <code>target = 1</code> &nbsp;→&nbsp; <strong>At-risk student</strong>, if <code>G3 &lt; 10</code><br>
+                <code>target = 0</code> &nbsp;→&nbsp; <strong>Low-risk student</strong>, if <code>G3 ≥ 10</code>
+            </li>
+        </ul>
+        <p style="color: var(--gray); font-size: 0.9rem;">
+            This framing turns the problem into a <strong>classification task</strong>:
+            <em>"Is this student at risk (yes/no)?"</em> instead of directly predicting raw marks.
+        </p>
+
+        <!-- 3. Field Reference & Encodings -->
+        <h5>3. Field Reference & Encoding Explanation</h5>
+        <p style="color: var(--gray); font-size: 0.95rem;">
+            The model uses a subset of the original features that balance predictive power and interpretability.
+            Many fields use short codes or numeric levels; the table below explains what each one means.
+        </p>
+
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>What it represents</th>
+                    <th>Value meaning</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Basic demographics -->
+                <tr>
+                    <td><code>age</code></td>
+                    <td>Student age</td>
+                    <td>15 – 22 years</td>
+                </tr>
+
+                <tr>
+                    <td><code>sex</code></td>
+                    <td>Student gender</td>
+                    <td>
+                        <code>F</code> = Female<br>
+                        <code>M</code> = Male
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>address</code></td>
+                    <td>Home location type</td>
+                    <td>
+                        <code>U</code> = Urban area<br>
+                        <code>R</code> = Rural area
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>famsize</code></td>
+                    <td>Family size</td>
+                    <td>
+                        <code>LE3</code> = Less than or equal to 3 family members<br>
+                        <code>GT3</code> = Greater than 3 family members
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>Pstatus</code></td>
+                    <td>Parents’ cohabitation status</td>
+                    <td>
+                        <code>T</code> = Parents live together<br>
+                        <code>A</code> = Parents live apart
+                    </td>
+                </tr>
+
+                <!-- Parental education -->
+                <tr>
+                    <td><code>Medu</code></td>
+                    <td>Mother’s education level</td>
+                    <td>
+                        0 = No formal education<br>
+                        1 = Primary education (up to 4th grade)<br>
+                        2 = Middle school (up to 9th grade)<br>
+                        3 = Secondary education<br>
+                        4 = Higher education (college/university)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>Fedu</code></td>
+                    <td>Father’s education level</td>
+                    <td>
+                        0 = No formal education<br>
+                        1 = Primary education (up to 4th grade)<br>
+                        2 = Middle school (up to 9th grade)<br>
+                        3 = Secondary education<br>
+                        4 = Higher education (college/university)
+                    </td>
+                </tr>
+
+                <!-- Academic behaviour -->
+                <tr>
+                    <td><code>studytime</code></td>
+                    <td>Weekly study time</td>
+                    <td>
+                        1 = Less than 2 hours per week<br>
+                        2 = 2 to 5 hours per week<br>
+                        3 = 5 to 10 hours per week<br>
+                        4 = More than 10 hours per week
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>failures</code></td>
+                    <td>Number of past class failures</td>
+                    <td>
+                        0–4 (higher values indicate more repeated failures)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>G1</code>, <code>G2</code></td>
+                    <td>Grades from previous periods</td>
+                    <td>
+                        Both are in the range 0–20 (higher is better).<br>
+                        These represent earlier term results before the final grade <code>G3</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>absences</code></td>
+                    <td>Total number of school absences</td>
+                    <td>
+                        0 – 30+ (higher values mean poorer attendance)
+                    </td>
+                </tr>
+
+                <!-- Support & activities -->
+                <tr>
+                    <td><code>schoolsup</code></td>
+                    <td>Extra academic support provided by school</td>
+                    <td>
+                        <code>yes</code> = Student receives extra support<br>
+                        <code>no</code> = No additional school support
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>famsup</code></td>
+                    <td>Family-supported educational help</td>
+                    <td>
+                        <code>yes</code> = Family provides academic support<br>
+                        <code>no</code> = No explicit family academic support
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>paid</code></td>
+                    <td>Extra paid classes (e.g., tuition/coaching)</td>
+                    <td>
+                        <code>yes</code> = Attends paid extra classes<br>
+                        <code>no</code> = Does not attend
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>activities</code></td>
+                    <td>Extra-curricular activities</td>
+                    <td>
+                        <code>yes</code> = Participates in extra activities<br>
+                        <code>no</code> = Does not participate
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>higher</code></td>
+                    <td>Interest in higher education</td>
+                    <td>
+                        <code>yes</code> = Wants to pursue higher education<br>
+                        <code>no</code> = Does not plan higher studies
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>internet</code></td>
+                    <td>Internet access at home</td>
+                    <td>
+                        <code>yes</code> = Has internet access<br>
+                        <code>no</code> = No internet at home
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 4. Engineered Features & Formulas -->
+        <h5>4. Engineered Features & Formulas</h5>
+        <p>
+            In addition to using the raw columns from the dataset, the model uses a few
+            <strong>engineered features</strong> that better capture academic performance and attendance.
+        </p>
+
+        <ul>
+            <li>
+                <strong>Average past grade</strong><br>
+                This combines the first two period grades into a single score:
+                <div style="margin-top: 0.3rem; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                    avg_past_grade = (G1 + G2) / 2
+                </div>
+                <span style="color: var(--gray); font-size: 0.9rem;">
+                    Intuition: students with consistently low earlier grades are more likely to be at risk in the final
+                    exam.
+                </span>
+            </li>
+
+            <li style="margin-top: 1rem;">
+                <strong>Attendance rate</strong><br>
+                This converts the number of absences into a value between 0 and 1:
+                <div style="margin-top: 0.3rem; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                    attendance_rate = 1 − (absences / max_absences)
+                </div>
+                where:
+                <ul style="margin-top: 0.3rem;">
+                    <li><code>absences</code> is the number of missed classes for that student.</li>
+                    <li><code>max_absences</code> is the maximum number of absences in the dataset (for normalisation).
+                    </li>
+                </ul>
+                <span style="color: var(--gray); font-size: 0.9rem;">
+                    Intuition: a lower attendance rate indicates weaker engagement, which correlates with academic risk.
+                </span>
+            </li>
+        </ul>
+
+        <!-- 5. Preprocessing & ML Pipeline -->
+        <h5>5. Preprocessing & Machine Learning Pipeline</h5>
+        <p>
+            The backend uses a <strong>scikit-learn pipeline</strong> to ensure that the exact same preprocessing
+            applied during training is also applied during prediction. The steps are:
+        </p>
+
+        <ol>
+            <li>
+                <strong>Feature selection</strong><br>
+                Only relevant and interpretable features are used (for example, <code>age</code>, <code>Medu</code>,
+                <code>Fedu</code>, <code>studytime</code>, <code>failures</code>, <code>avg_past_grade</code>,
+                <code>attendance_rate</code>, <code>sex</code>, <code>address</code>, <code>famsize</code>,
+                <code>Pstatus</code>, <code>schoolsup</code>, <code>famsup</code>, <code>paid</code>,
+                <code>activities</code>, <code>higher</code>, and <code>internet</code>).
+            </li>
+            <li style="margin-top: 0.6rem;">
+                <strong>Numerical preprocessing</strong><br>
+                Numerical fields are standardised using <code>StandardScaler</code> so that they have
+                approximately zero mean and unit variance. This helps the model handle features with
+                different scales (for example, age vs absences).
+            </li>
+            <li style="margin-top: 0.6rem;">
+                <strong>Categorical preprocessing</strong><br>
+                Categorical variables (like <code>sex</code>, <code>address</code>, <code>schoolsup</code>, etc.)
+                are converted into numeric form using <strong>one-hot encoding</strong> via
+                <code>OneHotEncoder</code> with <code>handle_unknown="ignore"</code>. Each category
+                becomes its own binary feature.
+            </li>
+            <li style="margin-top: 0.6rem;">
+                <strong>Model training</strong><br>
+                Two models are trained and compared:
+                <ul>
+                    <li><strong>Logistic Regression</strong> – a simple, interpretable linear classifier.</li>
+                    <li><strong>Random Forest Classifier</strong> – an ensemble of decision trees that captures
+                        non-linear patterns.</li>
+                </ul>
+                The model is evaluated using:
+                <ul>
+                    <li><strong>Accuracy</strong> – overall fraction of correct predictions.</li>
+                    <li><strong>Precision (for at-risk class)</strong> – when we say a student is at risk, how often are
+                        we correct?</li>
+                    <li><strong>Recall (for at-risk class)</strong> – of all truly at-risk students, how many did we
+                        correctly detect?</li>
+                </ul>
+            </li>
+            <li style="margin-top: 0.6rem;">
+                <strong>Final model selection</strong><br>
+                The final model is chosen by prioritising <strong>recall</strong> for the at-risk class,
+                because missing an at-risk student is more serious than a false alarm. In this implementation,
+                the <strong>Random Forest</strong> model achieved better recall and was selected as the final model.
+            </li>
+        </ol>
+
+        <!-- 6. How a prediction is generated -->
+        <h5>6. How a Prediction is Generated (Step-by-step)</h5>
+        <p>
+            When you fill the form on the <strong>Predictor</strong> page and click
+            <em>Predict Risk</em>, the following sequence happens on the server:
+        </p>
+        <ol>
+            <li>
+                The form values are collected and assembled into a single row (a small table with one student).
+            </li>
+            <li>
+                Derived features are computed:
+                <ul>
+                    <li><code>avg_past_grade</code> is calculated from <code>G1</code> and <code>G2</code>.</li>
+                    <li><code>attendance_rate</code> is estimated from the <code>absences</code> value.</li>
+                </ul>
+            </li>
+            <li>
+                The row is passed into the same preprocessing pipeline used during training:
+                numeric scaling + categorical encoding.
+            </li>
+            <li>
+                The processed features are sent into the trained <strong>Random Forest</strong> model.
+            </li>
+            <li>
+                The model outputs:
+                <ul>
+                    <li><code>predict_proba</code> → a probability for each class (Low-risk / At-risk).</li>
+                    <li><code>predict</code> → the final label (0 or 1).</li>
+                </ul>
+            </li>
+            <li>
+                The app converts this into:
+                <ul>
+                    <li><strong>Status:</strong> <em>At-risk</em> if probability ≥ 0.5, else <em>Low-risk</em>.</li>
+                    <li><strong>Risk Probability:</strong> shown as a percentage.</li>
+                </ul>
+            </li>
+            <li>
+                For extra transparency, the app also extracts
+                <strong>feature importances</strong> from the Random Forest model and lists the top contributing
+                features
+                to the prediction at the model level.
+            </li>
+        </ol>
+
+        <!-- 7. How to interpret the results -->
+        <h5>7. How to Interpret the Results</h5>
+        <ul>
+            <li>
+                <strong>Status:</strong><br>
+                <em>At-risk</em> means the model has found a pattern that is similar to students who previously had
+                low final grades. <em>Low-risk</em> means the opposite.
+            </li>
+            <li style="margin-top: 0.5rem;">
+                <strong>Risk Probability:</strong><br>
+                This is the model’s confidence in the at-risk class. For example,
+                <code>80%</code> means there is a high estimated chance that the student belongs to the at-risk group
+                based on patterns in the training data.
+            </li>
+            <li style="margin-top: 0.5rem;">
+                <strong>Top Contributing Features:</strong><br>
+                These show which features the model generally finds important, such as:
+                <ul>
+                    <li>Average past grades (<code>avg_past_grade</code>)</li>
+                    <li>Number of failures (<code>failures</code>)</li>
+                    <li>Absences / attendance-related indicators (<code>attendance_rate</code>)</li>
+                    <li>Study time (<code>studytime</code>)</li>
+                    <li>Parental education levels (<code>Medu</code>, <code>Fedu</code>)</li>
+                </ul>
+                They are <strong>not a personal judgment</strong> but a reflection of overall patterns learned by the
+                model.
+            </li>
+        </ul>
+
+        <!-- 8. Limitations & Ethical Use -->
+        <h5>8. Limitations & Ethical Use</h5>
+        <p>
+            While this model can highlight useful patterns, it also has important limitations:
+        </p>
+        <ul>
+            <li>
+                It is trained on a specific dataset and may not generalise perfectly to every school or region.
+            </li>
+            <li>
+                Some input features may act as proxies for socio-economic status.
+                These should be interpreted carefully to avoid reinforcing bias.
+            </li>
+            <li>
+                The model is <strong>probabilistic</strong>, not certain. Predictions can be wrong and should not be
+                used
+                as the sole basis for high-stakes decisions.
+            </li>
+        </ul>
+
+        <div class="note">
+            <strong>⚠️ Important:</strong>
+            This tool is intended for <strong>early support and mentoring</strong>.
+            It should never be used to punish or stigmatise students.
+            The best use is to combine the model’s output with teacher insight,
+            conversations with students, and a holistic view of their situation.
+        </div>
+
+        <!-- 9. Quick usage recap -->
+        <h5 style="margin-top: 2rem;">9. Quick Usage Recap</h5>
+        <ul>
+            <li>Go to the <strong>Predictor</strong> page.</li>
+            <li>Fill in the student’s basic, academic, and support details using the guidance above.</li>
+            <li>Click <strong>Predict Risk</strong> to see the status, probability, and key contributing features.</li>
+            <li>Use the result as a starting point to <strong>offer help and guidance</strong>, not as a final verdict.
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

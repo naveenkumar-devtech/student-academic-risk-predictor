@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <!-- Hero section -->
+    <div class="hero" style="padding-bottom: 1rem;">
+        <h1>Student Academic Risk Prediction</h1>
+        <p>
+            An end-to-end machine learning web app that helps identify students who may be
+            at academic risk, using real-world data and interpretable models.
+        </p>
+        <p style="margin-bottom: 2rem; color: var(--gray); font-size: 0.98rem;">
+            Powered by the UCI Student Performance dataset, Random Forest classification, and a
+            carefully designed feature set combining grades, attendance, and support indicators.
+        </p>
+        <a class="btn" href="{{ url_for('predict') }}">Start Prediction →</a>
+    </div>
+
+    <!-- Highlight badges -->
+    <div style="margin-top: 2.5rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;">
+        <span style="
+          padding: 0.4rem 0.9rem;
+          border-radius: 999px;
+          background: #eef2ff;
+          color: #4f46e5;
+          font-size: 0.8rem;
+          font-weight: 600;
+        ">
+            🎓 UCI Student Performance Dataset
+        </span>
+        <span style="
+          padding: 0.4rem 0.9rem;
+          border-radius: 999px;
+          background: #ecfeff;
+          color: #0f766e;
+          font-size: 0.8rem;
+          font-weight: 600;
+        ">
+            🤖 Random Forest Classifier
+        </span>
+        <span style="
+          padding: 0.4rem 0.9rem;
+          border-radius: 999px;
+          background: #fef3c7;
+          color: #92400e;
+          font-size: 0.8rem;
+          font-weight: 600;
+        ">
+            📈 Focus on Recall for At-Risk Students
+        </span>
+    </div>
+
+    <!-- 3-column feature section -->
+    <div class="form-section" style="margin-top: 2.5rem;">
+        <h3>✨ What this app offers</h3>
+        <div class="form-grid">
+            <div class="form-group" style="background:#f8fafc; padding:1.25rem; border-radius:12px;">
+                <label style="font-size:0.95rem; color: var(--dark); margin-bottom:0.4rem;">
+                    End-to-end ML pipeline
+                </label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    From raw student records to feature engineering, model training, evaluation,
+                    and deployment in a single, reproducible workflow.
+                </p>
+            </div>
+            <div class="form-group" style="background:#f8fafc; padding:1.25rem; border-radius:12px;">
+                <label style="font-size:0.95rem; color: var(--dark); margin-bottom:0.4rem;">
+                    Interpretable predictions
+                </label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    Uses a Random Forest model and highlights the most influential features
+                    (grades, attendance, support) contributing to the risk prediction.
+                </p>
+            </div>
+            <div class="form-group" style="background:#f8fafc; padding:1.25rem; border-radius:12px;">
+                <label style="font-size:0.95rem; color: var(--dark); margin-bottom:0.4rem;">
+                    Designed for early intervention
+                </label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    Built to support teachers, mentors, and administrators in
+                    spotting students who may need help—before final exams.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works - mini overview -->
+    <div class="form-section" style="margin-top: 1.5rem;">
+        <h3>🛠 Quick overview of how it works</h3>
+        <div class="form-grid">
+            <div class="form-group" style="padding-right: 1rem;">
+                <label style="font-size:0.9rem; color: var(--primary);">1. Input student details</label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    Provide basic background, support indicators, and academic history
+                    such as <strong>G1, G2</strong>, study time, and absences on the predictor page.
+                </p>
+            </div>
+            <div class="form-group" style="padding-right: 1rem;">
+                <label style="font-size:0.9rem; color: var(--primary);">2. ML model processes features</label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    The app engineers features like <strong>average past grade</strong> and
+                    <strong>attendance rate</strong>, scales numeric fields, and encodes categorical ones.
+                </p>
+            </div>
+            <div class="form-group">
+                <label style="font-size:0.9rem; color: var(--primary);">3. Risk score & explanation</label>
+                <p style="font-size:0.88rem; color: var(--gray);">
+                    A trained Random Forest model outputs a <strong>risk label</strong> and
+                    <strong>probability</strong>, plus key factors that influenced the prediction.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ethical note -->
+    <div class="note">
+        <strong>⚠️ Responsible use:</strong>
+        This application is a decision-support tool, not a replacement for human judgment.
+        Predictions should be used to guide mentoring and academic support, not to label or penalize students.
+    </div>
+</div>
+{% endblock %}

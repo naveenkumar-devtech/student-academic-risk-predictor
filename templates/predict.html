@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2 style="color: var(--primary); margin-bottom: 1rem; font-size: 2rem;">Predict Student Risk</h2>
+    <p style="color: var(--gray); margin-bottom: 2rem;">
+        Fill in the details below to estimate whether a student is at academic risk.
+        Fields are based on the UCI student performance dataset.
+    </p>
+
+    <form method="post">
+        <div class="form-section">
+            <h3>📊 Basic Information</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="age" value="17" required>
+                </div>
+                <div class="form-group">
+                    <label>Sex</label>
+                    <select name="sex">
+                        <option value="F">Female</option>
+                        <option value="M">Male</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <select name="address">
+                        <option value="U">Urban</option>
+                        <option value="R">Rural</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Family Size</label>
+                    <select name="famsize">
+                        <option value="GT3">&gt; 3 members</option>
+                        <option value="LE3">≤ 3 members</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Parents Status</label>
+                    <select name="Pstatus">
+                        <option value="T">Together</option>
+                        <option value="A">Apart</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>👨‍👩‍👧‍👦 Parents Education</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Mother's Education (0-4)</label>
+                    <input type="number" name="Medu" value="2" min="0" max="4" required>
+                </div>
+                <div class="form-group">
+                    <label>Father's Education (0-4)</label>
+                    <input type="number" name="Fedu" value="2" min="0" max="4" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>📚 Academic Performance</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>First Period Grade (G1)</label>
+                    <input type="number" name="G1" value="10" min="0" max="20" required>
+                </div>
+                <div class="form-group">
+                    <label>Second Period Grade (G2)</label>
+                    <input type="number" name="G2" value="10" min="0" max="20" required>
+                </div>
+                <div class="form-group">
+                    <label>Study Time (1-4)</label>
+                    <input type="number" name="studytime" value="2" min="1" max="4" required>
+                </div>
+                <div class="form-group">
+                    <label>Past Failures</label>
+                    <input type="number" name="failures" value="0" min="0" max="4" required>
+                </div>
+                <div class="form-group">
+                    <label>Absences</label>
+                    <input type="number" name="absences" value="0" min="0" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>🎯 Support & Activities</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>School Support</label>
+                    <select name="schoolsup">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Family Support</label>
+                    <select name="famsup">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Paid Classes</label>
+                    <select name="paid">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Extra Activities</label>
+                    <select name="activities">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Higher Education</label>
+                    <select name="higher">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Internet Access</label>
+                    <select name="internet">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Predict Risk 🔮</button>
+    </form>
+
+    {% if result %}
+    <div id="resultSection" class="result-box {{ 'at-risk' if result.label == 'At-risk' else '' }}">
+        <h4>📊 Prediction Results</h4>
+        <div class="result-item">
+            <strong>Status:</strong> {{ result.label }}
+        </div>
+        <div class="result-item">
+            <strong>Risk Probability:</strong> {{ "%.2f"|format(result.probability * 100) }}%
+        </div>
+
+        {% if explanation %}
+        <div class="feature-list">
+            <h5>Top Contributing Features</h5>
+            <ul>
+                {% for name, score in explanation %}
+                <li><span>{{ name }}</span><span>{{ "%.3f"|format(score) }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
